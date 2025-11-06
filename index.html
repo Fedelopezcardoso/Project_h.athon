@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckPoint | Autenticación Invisible</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 CheckPoint</h1>
+            <p>Tu acceso seguro y sin fricción.</p>
+        </header>
+
+        <main>
+            <section id="auth-input">
+                <h2>Ingresá tu número para acceder</h2>
+                <div class="input-group">
+                    <label for="phoneNumber">Número de Teléfono</label>
+                    <input type="tel" id="phoneNumber" placeholder="+54 9 11 1234 5678" required>
+                    <div class="consent">
+                        <input type="checkbox" id="consentCheck" checked disabled>
+                        <label for="consentCheck">Al continuar, aceptás la validación de tu dispositivo y línea.</label>
+                    </div>
+                </div>
+                <button id="authenticateButton">Autenticar de forma segura</button>
+            </section>
+
+            <section id="auth-result" class="hidden">
+                <h2>Resultado de la Autenticación</h2>
+                <div class="result-box" id="resultBox">
+                    <p id="resultText"></p>
+                    <p id="scoreText" class="score"></p>
+                </div>
+                <button id="resetButton" class="secondary-button">Volver a intentar</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 CheckPoint Hackathon</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
