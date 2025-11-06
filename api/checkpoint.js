@@ -44,6 +44,11 @@ export default async function handler(request, response) {
             fetchOpenGateway(DEVICE_STATUS_URL, numeroTelefono, API_KEY)
         ]);
 
+        // LOGS DE APIS
+console.log('Respuesta de SIM Swap:', simSwapResult);
+console.log('Respuesta de Num Verify:', numVerifyResult);
+console.log('Respuesta de Device Status:', deviceStatusResult);
+
         // 4. Lógica de Scoring (la misma de antes)
         let score = 100;
         let reasons = [];
