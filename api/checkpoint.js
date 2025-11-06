@@ -2,7 +2,7 @@
 // ¡Importante! Necesitás 'node-fetch' v2 para este entorno
 // Corré: npm install node-fetch@2
 
-import fetch from 'node-fetch'; // Usamos la importación moderna
+
 
 // Función helper (la misma de antes)
 async function fetchOpenGateway(apiUrl, number, apiKey) {
