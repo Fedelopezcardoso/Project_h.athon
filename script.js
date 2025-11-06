@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mockResult = mockResponses[2]; 
         } else if (number.includes('222')) { // Si tiene 222, forzamos revisión
             mockResult = mockResponses[1];
+            } else if (number.includes('333')) { // <-- AÑADIDO: Si tiene 333, forzamos aprobación
+            mockResult = mockResponses[0];
         } else {
             mockResult = mockResponses[Math.floor(Math.random() * mockResponses.length)];
         }
