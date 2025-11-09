@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. SELECCIÓN DE ELEMENTOS ---
     const authInputSection = document.getElementById('auth-input');
     const authResultSection = document.getElementById('auth-result');
     const phoneNumberInput = document.getElementById('phoneNumber');
@@ -7,64 +8,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultText = document.getElementById('resultText');
     const scoreText = document.getElementById('scoreText');
     const resetButton = document.getElementById('resetButton');
-const consentCheckbox = document.getElementById('consentCheck');
+    const consentCheckbox = document.getElementById('consentCheck');
 
-// --- AÑADE TODO ESTE BLOQUE ---
+    // --- 2. INICIALIZACIÓN DE LA LIBRERÍA DE TELÉFONO (intl-tel-input) ---
+    const iti = window.intlTelInput(phoneNumberInput, {
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.2.16/build/js/utils.js",
+        initialCountry: "ar",
+        separateDialCode: true,
+        preferredCountries: ["ar", "br", "cl", "uy", "us", "es"]
+    });
+
+    // --- 3. LÓGICA DEL CHECKBOX DE CONSENTIMIENTO ---
     if (consentCheckbox && authenticateButton) {
-        // Escuchamos cada vez que el usuario hace clic en el checkbox
         consentCheckbox.addEventListener('change', () => {
-            // Habilita el botón SÓLO SI el checkbox está marcado
-            // (La propiedad 'disabled' del botón será lo opuesto a si está 'checked')
+            // Habilita el botón solo si el checkbox está marcado
             authenticateButton.disabled = !consentCheckbox.checked;
         });
     }
-    // --- FIN DEL BLOQUE A AÑADIR ---
-    /**
-     * =============================================================
-     * FUNCIÓN REAL PARA LLAMAR AL ORQUESTADOR
-     * =============================================================
-     * Reemplazo la simulación.
-     */
-    async function callOrchestrator(number) {
-        
-        // Esta es la URL del BACKEND (EL ORQUESTADOR)
-        // Como Vercel tiene mi index.html y mi api/ juntos desde el mismo
-        // dominio (ej: project-h-athon.vercel.app), puedo usar una URL relativa.
-        // ¡Esto evita problemas de CORS!
-        const ORCHESTRATOR_URL = 'https://project-h-athon.vercel.app/api/checkpoint'; 
 
+    // --- 4. FUNCIÓN PARA LLAMAR AL BACKEND (ORQUESTADOR) ---
+    async function callOrchestrator(number) {
+        const ORCHESTRATOR_URL = 'https://project-h-athon.vercel.app/api/checkpoint';
         console.log(`Llamando al orquestador real en: ${ORCHESTRATOR_URL}`);
 
         try {
-            // Hacemos el "fetch" (POST) a nuestro backend
             const response = await fetch(ORCHESTRATOR_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                // Le mandamos el número en el body, como un JSON
                 body: JSON.stringify({
                     numeroTelefono: number // Tu backend espera 'numeroTelefono'
                 })
             });
 
-            // Si el backend (tu API) falla (devuelve un 400, 500, etc.)
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error devuelto por el orquestador:', errorData);
                 throw new Error(errorData.message || 'Error en el orquestador');
             }
 
-            // Si todo sale bien (200 OK), devolvemos el JSON
             const result = await response.json();
-            console.log('Respuesta del backend:', result); // Log para depurar
+            console.log('Respuesta del backend:', result);
             return result;
 
         } catch (error) {
-            // Esto atrapa errores de red (ej: no hay internet) o el 'throw' de arriba
             console.error('Error fatal llamando al orquestador:', error);
-            
-            // Devolvemos un objeto de error para que la UI lo muestre
             return {
                 decision: 'ERROR',
                 score: 0,
@@ -74,66 +63,77 @@ const consentCheckbox = document.getElementById('consentCheck');
         }
     }
 
-    // Manejar el clic del botón de autenticación
+    // --- 5. LÓGICA DEL BOTÓN "AUTENTICAR" ---
     authenticateButton.addEventListener('click', async () => {
-        const phoneNumber = phoneNumberInput.value.trim();
+        
+        // Obtenemos el número ya formateado (ej: +54911...)
+        const phoneNumber = iti.getNumber(); 
 
-        if (phoneNumber === '') {
-            // ¡NO USAR ALERT! Mostramos el error en la UI.
+        // --- VALIDACIONES ---
+        // Validación 1: El número está vacío
+        if (phoneNumber.trim() === '') {
             authInputSection.classList.add('hidden');
             authResultSection.classList.remove('hidden');
             resultText.textContent = 'Por favor, ingresa un número de teléfono.';
             scoreText.textContent = '';
-            resultBox.className = 'result-box danger'; // Aplicamos clase de error
-            resetButton.disabled = false; // Permitir resetear
-            authenticateButton.disabled = false; // Re-habilitar botón
-            phoneNumberInput.disabled = false; // Re-habilitar input
+            resultBox.className = 'result-box danger';
+            resetButton.disabled = false;
+            authenticateButton.disabled = true; // Queda deshabilitado porque el check se resetea
+            phoneNumberInput.disabled = false;
             authenticateButton.textContent = 'Autenticar de forma segura';
             return;
         }
 
-        // Deshabilitar UI durante la llamada
+        // Validación 2: El número es inválido (ej: "123")
+        if (!iti.isValidNumber()) {
+            authInputSection.classList.add('hidden');
+            authResultSection.classList.remove('hidden');
+            resultText.textContent = 'El número de teléfono ingresado no es válido.';
+            scoreText.textContent = '';
+            resultBox.className = 'result-box danger';
+            resetButton.disabled = false;
+            authenticateButton.disabled = !consentCheckbox.checked;
+            phoneNumberInput.disabled = false;
+            authenticateButton.textContent = 'Autenticar de forma segura';
+            return;
+        }
+
+        // --- SI PASA, DESHABILITAMOS LA UI ---
+        // (Este es el código que se había salido de lugar)
         authenticateButton.disabled = true;
         phoneNumberInput.disabled = true;
         authenticateButton.textContent = 'Autenticando...';
-        resultBox.className = 'result-box'; // Limpia clases anteriores
+        resultBox.className = 'result-box';
         resultText.textContent = 'Procesando tu solicitud...';
         scoreText.textContent = '';
         authInputSection.classList.add('hidden');
         authResultSection.classList.remove('hidden');
 
-
-        // ¡Llamar a la función REAL que acabamos de configurar!
+        // --- LLAMAMOS AL BACKEND ---
         const result = await callOrchestrator(phoneNumber);
 
-        // Mostrar el resultado
+        // --- MOSTRAMOS EL RESULTADO ---
         resultText.textContent = `${result.message}`;
         scoreText.textContent = `Score de Confianza: ${result.score}`;
-        resultBox.classList.add(result.type); // Aplica clase de estilo (success, warning, danger)
+        resultBox.classList.add(result.type); 
 
         // Habilitar el botón de reset
         resetButton.disabled = false;
     });
 
-    // Manejar el clic del botón de volver a intentar
+    // --- 6. LÓGICA DEL BOTÓN "VOLVER A INTENTAR" ---
     resetButton.addEventListener('click', () => {
         authResultSection.classList.add('hidden');
         authInputSection.classList.remove('hidden');
 
         phoneNumberInput.value = ''; // Limpiar el campo
-        
-        // --- AÑADE ESTA LÍNEA ---
-        consentCheckbox.checked = false; // Desmarcamos el checkbox
-
-
-
-        
-        // --- MODIFICA ESTA LÍNEA ---
-        authenticateButton.disabled = true; // El botón vuelve a estar deshabilitado
-
+        consentCheckbox.checked = false; // Desmarcar el tilde
+        authenticateButton.disabled = true; // Deshabilitar el botón de autenticar
         phoneNumberInput.disabled = false;
+        iti.setCountry("ar"); // Resetear la bandera a Argentina
+
         authenticateButton.textContent = 'Autenticar de forma segura';
-        resultBox.className = 'result-box'; // Limpiar clases
+        resultBox.className = 'result-box'; 
         resultText.textContent = '';
         scoreText.textContent = '';
     });
