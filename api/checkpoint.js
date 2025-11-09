@@ -8,10 +8,10 @@
 // --- URLs Constantes (del Kit de Recursos PDF) ---
 
 // URL para obtener el token de acceso
-const TOKEN_URL = 'https://access-checkpoint.free.beeceptor.com/accestoken';
+const TOKEN_URL = 'https://opengw.test.openxpand.com/auth/realms/telecom/protocol/openid-connect/token';
 
 // URL base para llamar a las APIs
-const API_BASE_URL = 'https://access-checkpoint.free.beeceptor.com/apibase';
+const API_BASE_URL = 'https://api.test.openxpand.com/api/camara/telecom/sandbox/';
 
 // Scopes combinados para las 3 APIs que usaremos
 const API_SCOPES = 'openid dpv:FraudPreventionAndDetection2LA#number-verification dpv:FraudPreventionAndDetection#sim-swap dpv:FraudPreventionAndDetection#device-status';
@@ -132,7 +132,7 @@ export default async function handler(request, response) {
             // API 1: SIM Swap Check (¿Cambió la SIM en las últimas 24hs?)
             callApi('sim-swap/v0/check', { 
                 phoneNumber: numeroTelefono, 
-                maxAge: 2400 // 100 dias horas es un buen default para fraude
+                maxAge: 24 // 24 horas es un buen default para fraude
             }, accessToken),
             
             // API 2: Number Verification
