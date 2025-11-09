@@ -125,6 +125,9 @@ const consentCheckbox = document.getElementById('consentCheck');
         // --- AÑADE ESTA LÍNEA ---
         consentCheckbox.checked = false; // Desmarcamos el checkbox
 
+
+
+        
         // --- MODIFICA ESTA LÍNEA ---
         authenticateButton.disabled = true; // El botón vuelve a estar deshabilitado
 
