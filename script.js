@@ -7,18 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultText = document.getElementById('resultText');
     const scoreText = document.getElementById('scoreText');
     const resetButton = document.getElementById('resetButton');
+const consentCheckbox = document.getElementById('consentCheck');
 
+// --- AÑADE TODO ESTE BLOQUE ---
+    if (consentCheckbox && authenticateButton) {
+        // Escuchamos cada vez que el usuario hace clic en el checkbox
+        consentCheckbox.addEventListener('change', () => {
+            // Habilita el botón SÓLO SI el checkbox está marcado
+            // (La propiedad 'disabled' del botón será lo opuesto a si está 'checked')
+            authenticateButton.disabled = !consentCheckbox.checked;
+        });
+    }
+    // --- FIN DEL BLOQUE A AÑADIR ---
     /**
      * =============================================================
      * FUNCIÓN REAL PARA LLAMAR AL ORQUESTADOR
      * =============================================================
-     * Esta función reemplaza la simulación.
+     * Reemplazo la simulación.
      */
     async function callOrchestrator(number) {
         
-        // Esta es la URL de TU PROPIO BACKEND (EL ORQUESTADOR)
-        // Como Vercel sirve tu index.html y tu api/ juntos desde el mismo
-        // dominio (ej: project-h-athon.vercel.app), podés usar una URL relativa.
+        // Esta es la URL del BACKEND (EL ORQUESTADOR)
+        // Como Vercel tiene mi index.html y mi api/ juntos desde el mismo
+        // dominio (ej: project-h-athon.vercel.app), puedo usar una URL relativa.
         // ¡Esto evita problemas de CORS!
         const ORCHESTRATOR_URL = 'https://project-h-athon.vercel.app/api/checkpoint'; 
 
@@ -110,7 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
         authInputSection.classList.remove('hidden');
 
         phoneNumberInput.value = ''; // Limpiar el campo
-        authenticateButton.disabled = false;
+        
+        // --- AÑADE ESTA LÍNEA ---
+        consentCheckbox.checked = false; // Desmarcamos el checkbox
+
+        // --- MODIFICA ESTA LÍNEA ---
+        authenticateButton.disabled = true; // El botón vuelve a estar deshabilitado
+
         phoneNumberInput.disabled = false;
         authenticateButton.textContent = 'Autenticar de forma segura';
         resultBox.className = 'result-box'; // Limpiar clases
