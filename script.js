@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authResultSection.classList.remove('hidden');
 
         // --- LLAMAMOS AL BACKEND ---
+        const numeroParaAPI = phoneNumber.substring(1);
         const result = await callOrchestrator(phoneNumber);
 
         // --- MOSTRAMOS EL RESULTADO ---
